@@ -66,6 +66,12 @@ class ViewController: UIViewController {
                 }
             }
         }
+        else {
+            let ac = UIAlertController(title: "That was the lasst level", message: "Final Score '\(score)'", preferredStyle: .Alert)
+            ac.addAction(UIAlertAction(title: "Reset", style: .Default, handler: endProgram))
+            presentViewController(ac, animated: true, completion: nil)
+        }
+
         
         cluesLabel.text = clueString.stringByTrimmingCharactersInSet(.whitespaceAndNewlineCharacterSet())
         answersLabel.text = solutionString.stringByTrimmingCharactersInSet(.whitespaceAndNewlineCharacterSet())
@@ -78,6 +84,11 @@ class ViewController: UIViewController {
                 letterButtons[i].setTitle(letterBits[i], forState: .Normal)
             }
         }
+    }
+    
+    func endProgram (action: UIAlertAction!) {
+        level = 0;
+        levelUp(action)
     }
     
     @IBAction func submitTapped(sender: AnyObject) {
@@ -96,6 +107,7 @@ class ViewController: UIViewController {
                 ac.addAction(UIAlertAction(title: "Let's go!", style: .Default, handler: levelUp))
                 presentViewController(ac, animated: true, completion: nil)
             }
+            
         }
     }
     
