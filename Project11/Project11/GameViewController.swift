@@ -6,6 +6,7 @@
 //  Copyright (c) 2015 Charley Jones. All rights reserved.
 //
 
+import GameplayKit
 import UIKit
 import SpriteKit
 

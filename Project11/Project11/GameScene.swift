@@ -6,12 +6,10 @@
 //  Copyright (c) 2015 Charley Jones. All rights reserved.
 //
 
-
-import SpriteKit
 import GameplayKit
+import SpriteKit
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
-
     var scoreLabel: SKLabelNode!
     
     var score: Int = 0 {
@@ -38,20 +36,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         background.blendMode = .Replace
         background.zPosition = -1
         addChild(background)
+        
         physicsBody = SKPhysicsBody(edgeLoopFromRect: frame)
         physicsWorld.contactDelegate = self
+        
+        makeSlotAt(CGPoint(x: 128, y: 0), isGood: true)
+        makeSlotAt(CGPoint(x: 384, y: 0), isGood: false)
+        makeSlotAt(CGPoint(x: 640, y: 0), isGood: true)
+        makeSlotAt(CGPoint(x: 896, y:0), isGood: false)
         
         makeBouncerAt(CGPoint(x: 0, y: 0))
         makeBouncerAt(CGPoint(x: 256, y: 0))
         makeBouncerAt(CGPoint(x: 512, y: 0))
         makeBouncerAt(CGPoint(x: 768, y: 0))
         makeBouncerAt(CGPoint(x: 1024, y: 0))
-        
-        
-        makeSlotAt(CGPoint(x: 128, y: 0), isGood: true)
-        makeSlotAt(CGPoint(x: 384, y: 0), isGood: false)
-        makeSlotAt(CGPoint(x: 640, y: 0), isGood: true)
-        makeSlotAt(CGPoint(x: 896, y:0), isGood: false)
         
         scoreLabel = SKLabelNode(fontNamed: "Chalkduster")
         scoreLabel.text = "Score: 0"
@@ -76,8 +74,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             } else {
                 if editingMode {
                     let size = CGSize(width: GKRandomDistribution(lowestValue: 16, highestValue: 128).nextInt(), height: 16)
-                    let box = SKSpriteNode(color: RandomColor(), size: size)
-                    box.zRotation = RandomCGFloat(min: 0, max: 3)
+                    let box = SKSpriteNode(color: UIColor.redColor(), size: size) /* RandomColor() */
+                    let f = CGFloat(GKRandomDistribution(lowestValue: 0, highestValue: 360).nextInt()) * 6.28
+                    box.zRotation = f /* RandomCGFloat(min: 0, max: 3) */
                     box.position = location
                     
                     box.physicsBody = SKPhysicsBody(rectangleOfSize: box.size)
@@ -95,6 +94,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 }
             }
         }
+    }
+    
+    override func update(currentTime: CFTimeInterval) {
+        /* Called before each frame is rendered */
     }
     
     func makeBouncerAt(position: CGPoint) {
@@ -134,6 +137,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         slotGlow.runAction(spinForever)
     }
     
+    func didBeginContact(contact: SKPhysicsContact) {
+        if contact.bodyA.node!.name == "ball" {
+            collisionBetweenBall(contact.bodyA.node!, object: contact.bodyB.node!)
+        } else if contact.bodyB.node!.name == "ball" {
+            collisionBetweenBall(contact.bodyB.node!, object: contact.bodyA.node!)
+        }
+    }
+    
     func collisionBetweenBall(ball: SKNode, object: SKNode) {
         if object.name == "good" {
             destroyBall(ball)
@@ -145,18 +156,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func destroyBall(ball: SKNode) {
+        if let fireParticles = SKEmitterNode(fileNamed: "FireParticles") {
+            fireParticles.position = ball.position
+            addChild(fireParticles)
+        }
+        
         ball.removeFromParent()
     }
-    
-    func didBeginContact(contact: SKPhysicsContact) {
-        if contact.bodyA.node!.name == "ball" {
-            collisionBetweenBall(contact.bodyA.node!, object: contact.bodyB.node!)
-        } else if contact.bodyB.node!.name == "ball" {
-            collisionBetweenBall(contact.bodyB.node!, object: contact.bodyA.node!)
-        }
-    }
-    
-    override func update(currentTime: CFTimeInterval) {
-    }
-
 }
+
