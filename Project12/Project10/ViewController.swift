@@ -16,6 +16,11 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
     override func viewDidLoad() {
         super.viewDidLoad()
         navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Add, target: self, action: "addNewPerson")
+        let defaults = NSUserDefaults.standardUserDefaults()
+        
+        if let savedPeople = defaults.objectForKey("people") as? NSData {
+            people = NSKeyedUnarchiver.unarchiveObjectWithData(savedPeople) as! [Person]
+        }
     }
     
     func addNewPerson() {
@@ -23,6 +28,12 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
         picker.allowsEditing = true
         picker.delegate = self
         presentViewController(picker, animated: true, completion: nil)
+    }
+    
+    func save() {
+        let savedData = NSKeyedArchiver.archivedDataWithRootObject(people)
+        let defaults = NSUserDefaults.standardUserDefaults()
+        defaults.setObject(savedData, forKey: "people")
     }
     
     func imagePickerControllerDidCancel(picker: UIImagePickerController) {
@@ -51,6 +62,7 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
         people.append(person)
         collectionView.reloadData()
         dismissViewControllerAnimated(true, completion: nil)
+        self.save()
     }
     
     func getDocumentsDirectory() -> NSString {
@@ -100,6 +112,7 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
             person.name = newName.text!
             
             self.collectionView.reloadData()
+            self.save()
             })
         
         presentViewController(ac, animated: true, completion: nil)
